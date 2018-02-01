@@ -1,0 +1,68 @@
+{% extends "main.html" %}
+{% block content %}
+	<div class="row top-menu">
+		<div class="col-md-10"></div>
+		<div class="col-md-2 text-right">
+			{%if 'username' not in session %}
+			<a href="{{url_for('showLogin')}}">Click Here to Login </a>
+			{% else %}
+			<a href="{{url_for('disconnect')}}">Logout </a>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row divider blue">
+		<div class="col-md-12"></div>
+	</div>
+	<div class="row banner main">
+		<div class="col-md-1"></div>
+		<div class="col-md-11 padding-none">
+			<h1>Create your  music own playlist</h1>
+		</div>
+	</div>
+
+	<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+
+	
+	<div class="row padding-top padding-bottom">
+		<div class="col-md-1"></div>
+		<div class="col-md-10 padding-none">
+		<div>
+<a href="{{url_for('newPlaylist')}}" > <h3> Create a New Playlist </h3> </a>
+
+
+
+</div>	
+		</div>
+		<div class="col-md-1"></div>
+	</div>
+	{% for playlist in playlists %}
+	
+		
+			<div class="row">
+				<div class="col-md-1"></div>
+					<div class="col-md-10 restaurant-list">
+						<a href = "{{url_for('showSong', playlist_id = playlist.id)}}"> <h3>{{playlist.name}}</h3></a>
+						<a href = "{{url_for('newPlaylistSong',playlist_id = playlist.id)}}"> <p>add new song</p></a>
+
+						<p><a href = "{{url_for('editPlaylist',playlist_id = playlist.id)}}">Edit Playlist</a></p>
+
+						<p> <a href = "{{url_for('deletePlaylist',playlist_id = playlist.id)}}">Delete Playlist</a> </p>
+					</div>
+				<div class="col-md-1"></div>
+			</div>
+		
+	{% endfor %}
+{% endblock %}
