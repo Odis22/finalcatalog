@@ -1,0 +1,110 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+	<div class="row top-menu">
+		<div class="col-md-10"></div>
+	</div>
+	<div class="row divider blue">
+		<div class="col-md-12"></div>
+	</div>
+	<div class="row banner main">
+		<div class="col-md-1"></div>
+		<div class="col-md-11 padding-none">
+			<h1>Song</h1>
+		</div>
+	</div>
+
+	<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+
+	
+	<div class="row padding-top padding-bottom">
+		<div class="col-md-1"></div>
+		<div class="col-md-10 padding-none">
+		</div>
+		<div class="col-md-1"></div>
+	</div>
+	{% for playlist in playlists %}
+		<a href = "{{url_for('showMenu', playlist_id = playlist.id)}}">
+			<div class="row">
+				<div class="col-md-1"></div>
+					<div class="col-md-10 plays-list">
+						<h3>{{playlist.name}}</h3>
+					</div>
+				<div class="col-md-1"></div>
+			</div>
+		</a>
+	{% endfor %}
+	{% if songs !=[] %}	
+		<div class="row">
+		  
+ 	
+			<div class="col-md-1"></div>
+			<div class="col-md-3">
+				<h2>PoP</h2>
+					{% for s in songs %}
+						{% if s.genre == 'Pop' %}
+							<div class="menu-artist">
+								<h3>{{s.name}}</h3>
+								<p>{{s.artist}}</p>
+								
+							</div>
+			<p><a href = "{{url_for('editPlaylistSong',song_id = s.id, playlist_id = playlist.id)}}">Edit song</a></p>
+			<p><a href = "{{url_for('deletePlaylistSong', song_id = s.id, playlist_id = playlist.id)}}">Delete song</a></p>
+						{% endif %}
+					{% endfor %}
+			</div>
+			<div class="col-md-4">	
+			<h2>Country</h2>
+					{% for s in songs %}
+						{% if s.genre == 'Country' %}
+							<div class="menu-artist">
+								<h3>{{s.name}}</h3>
+								<p>{{s.artist}}</p>
+								
+							</div>
+			<p><a href = "{{url_for('editPlaylistSong',song_id = s.id, playlist_id = playlist.id)}}">Edit Team</a></p>
+			<p><a href = "{{url_for('deletePlaylistSong', song_id = s.id, playlist_id = playlist.id)}}">Delete Team</a></p>
+						{% endif %}
+					{% endfor %}
+			</div>
+			<div class="col-md-3">
+				<h2>RnB</h2>
+					{% for s in songs %}
+						{% if s.genre == 'RnB' %}
+						<div class="menu-artist">
+							<h3>{{s.name}}</h3>
+							<p>{{s.artist}}</p>
+						</div>
+			<p><a href = "{{url_for('editPlaylistSong',song_id = s.id, playlist_id = playlist.id)}}">Edit Team</a></p>
+			<p><a href = "{{url_for('deletePlaylistSong', song_id = s.id, playlist_id = playlist.id)}}">Delete Team</a></p>
+						{% endif %}
+					{% endfor %}
+				<h2>Rap</h2>
+					{% for s in songs %}
+						{% if s.genre == 'Rap' %}
+						<div class="menu-artist">
+							<h3>{{s.name}}</h3>
+							<p>{{s.artist}}</p>
+						</div>
+			<p><a href = "{{url_for('editPlaylistSong',song_id = s.id, playlist_id = playlist.id)}}">Edit Team</a></p>
+			<p><a href = "{{url_for('deletePlaylistSong', song_id = s.id, playlist_id = playlist.id)}}">Delete Team</a></p>
+						{% endif %}
+					{% endfor %}
+			</div>
+			<div class="col-md-1"></div>
+		</div>
+	{% endif %}
+{% endblock %}
