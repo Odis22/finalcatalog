@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request
+from flask import redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Playlist, PlaylistSong
@@ -97,8 +98,8 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px; '
+    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;">'
     flash("Now logged in as %s" % login_session['username'])
     return output
 
@@ -145,8 +146,16 @@ def getUserID(email):
 # 'id':'3'},{'name':'Dance hits', 'id':'4'}]
 
 
-# songs = [ {'name':'Rise up', 'artist':'Andra Day', 'time':'4.13','album' :'Cheers to the fall', 'id':'1'}, {'name':'thinking out loud','artist':'Ed Sheeran', 'time':'4.41', 'album':'X','id':'2'},{'name':'My time', 'artist':'fabolous','time':'4.35', 'album':'beauty','id':'3'},{'name':'Teach me how to dougie', 'artist':'cali swag district', 'time':'3.34', 'album':'Rap dance hits','id':'4'} ]
-# song =  {'name':'Rise up','artist':'Andra Day','time':'4.13','album' :'Cheers to the fall'}
+# songs = [ {'name':'Rise up', 'artist':'Andra Day', 'time':'4.13',
+# 'album' :'Cheers to the fall', 'id':'1'},
+# {'name':'thinking out loud','artist':'Ed Sheeran',
+# 'time':'4.41', 'album':'X','id':'2'},
+# {'name':'My time', 'artist':'fabolous','time':'4.35',
+# 'album':'beauty','id':'3'},
+# {'name':'Teach me how to dougie', 'artist':'cali swag district',
+# 'time':'3.34', 'album':'Rap dance hits','id':'4'} ]
+# song =  {'name':'Rise up','artist':'Andra Day','time':'4.13',
+# 'album' :'Cheers to the fall'}
 # songs = []
 
 @app.route('/playlist/<int:playlist_id>/song/JSON')
@@ -198,12 +207,13 @@ def newPlaylist():
 
 @app.route('/playlist/<int:playlist_id>/edit/', methods=['GET', 'POST'])
 def editPlaylist(playlist_id):
-    editedPlaylist = session.query(
-    Playlist).filter_by(id=playlist_id).one()
     if 'username' not in login_session:
         return redirect('/login')
+    editedPlaylist = session.query(Playlist).filter_by(id=playlist_id).one()
     if editedPlaylist.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this playlist. Please create your own playlist in order to delete.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Please create your own'"
+        "'playlist in order to edit.');}"
+        "</script><body onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['name']:
             editedPlaylist.name = request.form['name']
@@ -212,15 +222,17 @@ def editPlaylist(playlist_id):
         return render_template('editPlaylist.html', playlist=editedPlaylist)
 
     # return "This page will be for editing a playlist"
-    
+
+
 @app.route('/playlist/<int:playlist_id>/delete/', methods=['GET', 'POST'])
 def deletePlaylist(playlist_id):
-    deletedPlaylist = session.query(
-        Playlist).filter_by(id=playlist_id).one()
     if 'username' not in login_session:
         return redirect('/login')
+    deletedPlaylist = session.query(
+        Playlist).filter_by(id=playlist_id).one()
     if deletedPlaylist.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this playlist. Please create your own playlist in order to delete.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('Please create your own'"
+        "'playlist to delete.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(deletedPlaylist)
         flash('%s Successfully Deleted' % deletedPlaylist)
@@ -228,8 +240,10 @@ def deletePlaylist(playlist_id):
         return redirect(url_for('showPlaylists', playlist_id=playlist_id))
     else:
         return render_template('deletePlaylist.html', playlist=deletedPlaylist)
-            
+
 # show a playlist song
+
+
 @app.route('/playlist/<int:playlist_id>/')
 @app.route('/playlist/<int:playlist_id>/song/')
 def showSong(playlist_id):
@@ -238,39 +252,53 @@ def showSong(playlist_id):
     songs = session.query(PlaylistSong).filter_by(
         playlist_id=playlist_id).all()
     if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('playlistsongs.html', songs=songs, playlist=playlist, creator=creator) 
-    else: 
-        return render_template('song.html', songs=songs, playlist=playlist, creator=creator, playlist_id=playlist_id)
+        return render_template('playlistsongs.html', songs=songs,
+                               playlist=playlist, creator=creator)
+    else:
+        return render_template('song.html', songs=songs, playlist=playlist,
+                               creator=creator, playlist_id=playlist_id)
 # return 'This page is a song from a playlist %s' % playlist_id
-    
+
+
 @app.route('/playlist/<int:playlist_id>/song/new/', methods=['GET', 'POST'])
 def newPlaylistSong(playlist_id):
     if 'username' not in login_session:
         return redirect('/login')
     playlist = session.query(Playlist).filter_by(id=playlist_id).one()
     if login_session['user_id'] != playlist.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to add playlist songs. Please create your own account to add songs');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not authorized' "
+        "'to add playlist songs.'"
+        "Please create your own account to add songs');}</script>"
+        "<body onload='myFunction()''>"
     if request.method == 'POST':
-        newSong = PlaylistSong(name=request.form['name'], artist=request.form[
-        'artist'], genre=request.form['genre'], playlist_id=playlist_id, user_id=login_session['user_id'] )
+        newSong = PlaylistSong(name=request.form['name'],
+                               artist=request.form['artist'],
+                               genre=request.form['genre'],
+                               playlist_id=playlist_id,
+                               user_id=login_session['user_id'])
         session.add(newSong)
         session.commit()
         flash('New song %s Successfully added' % (newSong.name))
         return redirect(url_for('showPlaylists', playlist_id=playlist_id))
     else:
         return render_template('newplaylistsong.html', playlist_id=playlist_id)
-        
 
-    # return 'This page is for adding a new song to the library %s' %playlist_id
+    # return 'This page is for adding a new song to the library
 
-@app.route('/playlist/<int:playlist_id>/song/<int:song_id>/edit', methods=['GET', 'POST'])
+
+@app.route('/playlist/<int:playlist_id>/song/<int:song_id>/edit',
+           methods=['GET', 'POST'])
 def editPlaylistSong(playlist_id, song_id):
     if 'username' not in login_session:
         return redirect('/login')
     editedSong = session.query(PlaylistSong).filter_by(id=song_id).one()
     playlist = session.query(Playlist).filter_by(id=playlist_id).one()
     if login_session['user_id'] != playlist.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to edit song info on this playlist. Please create your own playlist in order to edit items.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction()"
+        "{alert('You are not authorized to edit'"
+        "'song info on this playlist.'"
+        "'Please create your own playlist in order to edit items.');"
+        "' }</script><body onload='myFunction()''>"
         return redirect('/login')
     if request.method == 'POST':
         if request.form['name']:
@@ -283,17 +311,24 @@ def editPlaylistSong(playlist_id, song_id):
         session.commit()
         return redirect(url_for('showPlaylists', playlist_id=playlist_id))
     else:
-        return render_template('editplaylistsong.html', playlist_id=playlist_id, song_id=song_id, song=editedSong)
+        return render_template('editplaylistsong.html',
+                               playlist_id=playlist_id,
+                               song_id=song_id, song=editedSong)
 
-    # return 'This page is for editing information about song 
-    
-@app.route('/playlist/<int:playlist_id>/song/<int:song_id>/delete',methods=['GET', 'POST'])
+    # return 'This page is for editing information about song
+
+
+@app.route('/playlist/<int:playlist_id>/song/<int:song_id>/delete',
+           methods=['GET', 'POST'])
 def deletePlaylistSong(playlist_id, song_id):
     if 'username' not in login_session:
         return redirect('/login')
     songtodelete = session.query(PlaylistSong).filter_by(id=song_id).one()
     if login_session['user_id'] != songtodelete.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to delete songs. Please create your own playlist in order to delete songs.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction()"
+        "{alert('You are not authorized to delete songs.'"
+        "Please create your own playlist in order to delete songs.');}"
+        "</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(songtodelete)
         session.commit()
@@ -301,8 +336,10 @@ def deletePlaylistSong(playlist_id, song_id):
         return redirect(url_for('showPlaylists'))
     else:
         return render_template('deleteplaylistsong.html', song=songtodelete)
- # return "This page is for deleting a song
- 
+
+    # return "This page is for deleting a song
+
+
 @app.route('/disconnect')
 def disconnect():
     if 'provider' in login_session:
@@ -319,7 +356,6 @@ def disconnect():
     else:
         flash("You were not logged in")
         return redirect(url_for('showPlaylists'))
-    
 
 
 if __name__ == '__main__':
